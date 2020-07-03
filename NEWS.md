@@ -1,3 +1,7 @@
+## 2.2.3 2020-07-03
+
+ * ERM-974 Change Organizations lookup URL from /organizations-storage/organizations to /organizations/organizations
+
 ## 2.2.2 2020-04-29
  * ERM-858 Postgres sequences out of sync when existing agreement data is upgraded
 
