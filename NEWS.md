@@ -1,3 +1,6 @@
+## 2.3.1 2020-07-03
+ * ERM-974 Change Organizations lookup URL from /organizations-storage/organizations to /organizations/organizations
+
 ## 2.3.0 2020-06-11
  * ERM-941 remove time check from remotekb harvest
  * ERM-931 Add Agreement Line "suppress from discovery" field to agreement resource JSON export
