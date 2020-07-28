@@ -131,7 +131,7 @@ databaseChangeLog = {
     changeSet(author: "claudia (manual)", id: "202007271150-05") {
       grailsChange {
         change {
-          sql.execute("UPDATE ${database.defaultSchemaName}.erm_resource SET res_publication_type_fk = (SELECT rdv_id FROM ${database.defaultSchemaName}.refdata_value INNER JOIN ${database.defaultSchemaName}.refdata_category ON refdata_value.rdv_owner = refdata_category.rdc_id WHERE rdc_description='TitleInstance.PublicationType' AND rdv_value='serial') WHERE res_type_fk=(SELECT rdv_id FROM ${database.defaultSchemaName}.refdata_value INNER JOIN ${database.defaultSchemaName}.refdata_category ON refdata_value.rdv_owner = refdata_category.rdc_id WHERE rdc_description='TitleInstance.Type' AND rdv_value='serial')".toString())
+          sql.execute("UPDATE ${database.defaultSchemaName}.erm_resource SET res_publication_type_fk = (SELECT rdv_id FROM ${database.defaultSchemaName}.refdata_value INNER JOIN ${database.defaultSchemaName}.refdata_category ON refdata_value.rdv_owner = refdata_category.rdc_id WHERE rdc_description='TitleInstance.PublicationType' AND rdv_value='serial') WHERE res_publication_type_fk is null AND res_type_fk=(SELECT rdv_id FROM ${database.defaultSchemaName}.refdata_value INNER JOIN ${database.defaultSchemaName}.refdata_category ON refdata_value.rdv_owner = refdata_category.rdc_id WHERE rdc_description='TitleInstance.Type' AND rdv_value='serial')".toString())
         }
       }  
     }
