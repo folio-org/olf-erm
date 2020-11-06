@@ -1,3 +1,7 @@
+## 3.0.1 2020-11-06
+ * ERM-1213 Exporting Resources from Agreement when "All" filter selected does not export all resources
+ * ERM-1203 Agreement Resources Export contains duplicate resources and incorrect agreement line information
+
 ## 3.0.0 2020-10-14
  * ERM-1180 Add @ EnableScheduling annotation in mod-agreements
  * ERM-1163 Remove default values from publicationType
