@@ -9,10 +9,12 @@ import spock.util.concurrent.PollingConditions
 
 @Stepwise
 abstract class BaseSpec extends HttpSpec {
+
+
   def setupSpec() {
     httpClientConfig = {
       client.clientCustomizer { HttpURLConnection conn ->
-        conn.connectTimeout = 3000
+        conn.connectTimeout = 20000
         conn.readTimeout = 20000
       }
     }

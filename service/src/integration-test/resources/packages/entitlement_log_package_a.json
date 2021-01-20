@@ -1,0 +1,113 @@
+{
+  "header": {
+    "dataSchema": {
+      "name": "mod-agreements-package",
+      "version": "1.0"
+    },
+    "trustedSourceTI": "true"
+  },
+  "records": [
+    {
+      "source": "test",
+      "reference": "entitlement_log_test_package_a",
+      "name": "Entitlement Log Test Package A",
+      "packageProvider": {
+        "name": "Test provider"
+      },
+      "contentItems": [
+        {
+          "depth": "fulltext",
+          "accessEnd": "EXPR:testexpr",
+          "coverage": [
+            {
+              "startDate": "1980-01-01",
+              "endDate": "1985-12-31"
+            }
+          ],
+          "platformTitleInstance": {
+            "platform": "BMJ Journals",
+            "platformUrl": "http://journals.bmj.com",
+            "url": "http://ard.bmj.com/content/by/year",
+            "titleInstance": {
+              "name": "Journal B: Annals of the rheumatic diseases",
+              "identifiers": [
+                {
+                  "value": "1468-2060",
+                  "namespace": "eissn"
+                },
+                {
+                  "value": "1481557-6",
+                  "namespace": "zdb"
+                }
+              ],
+              "type": "serial",
+              "subtype": "electronic"
+            }
+          }
+        },
+        {
+          "depth": "fulltext",
+          "accessStart": "2020-01-15",
+          "coverage": [
+            {
+              "startDate": "2006-01-01",
+              "endDate": "2016-12-31"
+            }
+          ],
+          "platformTitleInstance": {
+            "platform": "BMJ Journals",
+            "platformUrl": "http://journals.bmj.com",
+            "url": "http://adc.bmj.com/content/by/year",
+            "titleInstance": {
+              "name": "Journal C: Archives of disease in childhood",
+              "identifiers": [
+                {
+                  "value": "1468-2044",
+                  "namespace": "eissn"
+                },
+                {
+                  "value": "1481191-1",
+                  "namespace": "zdb"
+                }
+              ],
+              "type": "serial",
+              "subtype": "electronic"
+            }
+          }
+        },
+        {
+          "depth": "fulltext",
+          "coverage": [
+            {
+              "startDate": "2006-01-01",
+              "endDate": "2016-12-31",
+              "startVolume": "91",
+              "endVolume": "101"
+            }
+          ],
+          "platformTitleInstance": {
+            "platform": "BMJ Journals",
+            "platformUrl": "http://journals.bmj.com",
+            "url": "http://ep.bmj.com/content/by/year",
+            "titleInstance": {
+              "name": "Journal D: Education & practice",
+              "identifiers": [
+                {
+                  "value": "1743-0593",
+                  "namespace": "eissn"
+                },
+                {
+                  "value": "2188492-4",
+                  "namespace": "zdb"
+                }
+              ],
+              "type": "serial",
+              "subtype": "electronic"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
