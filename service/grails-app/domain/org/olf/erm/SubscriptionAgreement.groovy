@@ -5,6 +5,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 
 import org.grails.web.servlet.mvc.GrailsWebRequest
+import org.olf.PeriodService
 import org.olf.general.DocumentAttachment
 import org.olf.general.Org
 import org.olf.kb.ErmTitleList
@@ -29,7 +30,8 @@ import javax.persistence.Transient
 @Slf4j
 public class SubscriptionAgreement extends ErmTitleList implements CustomProperties,MultiTenant<SubscriptionAgreement>, Clonable<SubscriptionAgreement> {
    
-  static transients = ['cancellationDeadline', 'startDate', 'endDate', 'currentPeriod']
+  static transients = ['cancellationDeadline', 'currentPeriod']
+
   static cloneStaticValues = [
     periods: { [new Period('owner': delegate, 'startDate': LocalDate.now())] },
     name: { "Copy of: ${owner.name}" /* Owner is the current object. */ }
@@ -125,43 +127,8 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
     currentPeriod?.cancellationDeadline
   }
   
-  private LocalDate startDate = null
-  LocalDate getStartDate() {
-    if (startDate == null) {
-    
-      if (currentPeriod) {
-        startDate = currentPeriod.startDate
-        return startDate
-      }
-      
-      LocalDate earliest = null
-      periods.each { Period p ->
-        if (earliest == null || p.startDate < earliest) earliest = p.startDate
-      }
-      
-      startDate = earliest
-    }
-    startDate
-  }
-  
-  private LocalDate endDate = null
-  LocalDate getEndDate() {
-    if (endDate == null) {
-      
-      if (currentPeriod) {
-        endDate = currentPeriod.endDate
-        return endDate
-      }
-      
-      LocalDate latest = null
-      periods.each { Period p ->
-        if (latest == null || p.endDate > latest) latest = p.endDate
-      }
-      
-      endDate = latest
-    }
-    endDate
-  }
+  LocalDate startDate
+  LocalDate endDate
   
   static hasMany = [
          alternateNames: AlternateName,
@@ -212,6 +179,8 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
                   vendor column:'sa_vendor_fk'
        attachedLicenceId column:'sa_licence_fk'
              licenseNote column:'sa_license_note'
+               startDate column: 'sa_start_date'
+                 endDate column: 'sa_end_date'
           alternateNames cascade: 'all-delete-orphan'
                    items cascade: 'all-delete-orphan', lazy: false
                 contacts cascade: 'all-delete-orphan', lazy: false
@@ -231,6 +200,8 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
 
   static constraints = {
                     name(nullable:false, blank:false, unique: true)
+               startDate(nullable:true, blank:false, bindable: false)
+                 endDate(nullable:true, blank:false, bindable: false)
           localReference(nullable:true, blank:false)
          vendorReference(nullable:true, blank:false)
              renewalDate(nullable:true, blank:false)
@@ -257,6 +228,7 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
 
   def beforeValidate() {
     checkAgreementStatus()
+    calculateDates()
   }
   
   public void checkAgreementStatus () {
@@ -266,6 +238,11 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
       reasonForClosure = null
     }
   }
+
+  public void calculateDates () {
+    startDate = PeriodService.calculateStartDate(periods)
+    endDate = PeriodService.calculateEndDate(periods)
+  }
   
   /**
    * Need to resolve the conflict manually and add the call to the clonable method here. 
@@ -273,6 +250,86 @@ public class SubscriptionAgreement extends ErmTitleList implements CustomPropert
   @Override
   public SubscriptionAgreement clone () {
     Clonable.super.clone()
+  }
+
+  public LocalDate getLocalDate() {
+    LocalDate ld
+    // Use the request if possible
+    RequestAttributes attributes = RequestContextHolder.getRequestAttributes()
+    if(attributes && attributes instanceof GrailsWebRequest) {
+      
+      GrailsWebRequest gwr = attributes as GrailsWebRequest
+      
+      log.debug "Is within a request context"
+      TimeZone tz = RequestContextUtils.getTimeZone(gwr.currentRequest) ?: TimeZone.getDefault()
+      
+      log.debug "Using TZ ${tz}"
+      ZonedDateTime zdt = ZonedDateTime.ofInstant(Instant.now(), tz.toZoneId())
+      
+      log.debug "Now in ${tz} is ${zdt}"
+      ld = zdt.toLocalDate()
+      
+      log.debug "LocalDate of ${ld} extracted for query"
+    } else {
+      log.debug "Is not within a request context, using default TZ (${TimeZone.getDefault()})"
+      ld = LocalDate.now()
+    }
+
+    ld
+  }
+
+  public String findCurrentPeriod() {
+    log.debug "Find current period"
+    String cpId
+    LocalDate ld = getLocalDate()
+    cpId = Period.executeQuery("""
+      SELECT p.id FROM Period p
+      WHERE p.startDate < :ld
+      AND (p.endDate > :ld OR p.endDate = NULL)
+      AND p.owner.id = :id
+      """,
+      [id: id, ld: ld]
+    )[0]
+
+    cpId
+  }
+
+  public String findPreviousPeriod() {
+    log.debug "Find previous period"
+    String ppId
+    LocalDate ld = getLocalDate()
+    ppId = Period.executeQuery("""
+      SELECT p.id FROM Period p
+      WHERE p.startDate = (
+        SELECT MAX(p1.startDate) FROM Period p1 
+        WHERE p1.endDate < :ld
+        AND p1.owner.id = :id
+      )
+      AND p.owner.id = :id
+      """,
+      [id: id, ld: ld]
+    )[0]
+
+    ppId
+  }
+
+  public String findNextPeriod() {
+    log.debug "Find next period"
+    String npId
+    LocalDate ld = getLocalDate()
+    npId = Period.executeQuery("""
+      SELECT p.id FROM Period p
+      WHERE p.startDate = (
+        SELECT MIN(p1.startDate) FROM Period p1 
+        WHERE p1.startDate > :ld
+        AND p1.owner.id = :id
+      )
+      AND p.owner.id = :id
+      """,
+      [id: id, ld: ld]
+    )[0]
+
+    npId
   }
 
   @Transient
